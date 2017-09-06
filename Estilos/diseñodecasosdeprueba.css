@@ -1,0 +1,26 @@
+@media(min-width:1025px){
+    #diseño {
+        min-height: 443px;
+    }
+  
+}
+
+@media(width:1024px){
+    #diseño {
+        min-height: 540px;
+    }
+  
+}
+
+@media (min-width: 1500px){
+    #diseño {
+        min-height: 755px;
+    }
+}
+
+@media(max-width:800px){
+    #diseño {
+        min-height: 720px;
+    }
+  
+}

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script type="text/javascript" src="Estilos/JQuery/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript" src="Estilos/bootstrap/js/bootstrap.js"></script>
+  <link rel="stylesheet" href="Estilos/bootstrap/css/bootstrap.css" />
+  <link rel="stylesheet" href="Estilos/bootstrap/css/bootstrap-theme.css" />
+  <link rel="stylesheet" href="Estilos/reporteincidentes.css" />
+  <link rel="stylesheet" href="Estilos/FontAwesome/css/font-awesome.css">
+  <link rel="stylesheet" href="Estilos/reporteincidentes.css">
+  <link rel="stylesheet" href="general.style.css">
+  <link rel="shortcut icon" href="img/logo2-transparent.png">
+
+  <link href="Estilos/bootstrap-fileinput-master/css/fileinput.css" media="all" rel="stylesheet" type="text/css" />
+  <script src="Estilos/bootstrap-fileinput-master/js/fileinput.min.js" type="text/javascript"></script>
+
+  <title>QManagement</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script>
+    $(document).ready(function () {
+      $("#alert-respuesta").hide();
+
+      $("#btn-alert-close").click(function () {
+        $("#alert-respuesta").hide();
+      });
+
+      $("#select-naturaleza, #select-tipo, #select-severidad, #select-prioridad, #select-core, #select-encargado").change(function () {
+        $.validarInput($(this).attr("id"));
+      });
+
+      $("#txt-descripcion").blur(function () {
+        $.validarInput($(this).attr("id"));
+      });
+
+      $("#btn-reprotar").click(function () {
+        if ($.validarFormulario()) {
+          $("#select-naturaleza").val("-1");
+          $("#select-tipo").val("-1");
+          $("#select-severidad").val("-1");
+          $("#select-prioridad").val("-1");
+          $("#select-core").val("-1");
+          $("#select-encargado").val("-1");
+          $("#txt-descripcion").val("");
+
+          $("#modal-validacion").modal();
+          $("#alert-color-val").removeAttr("class");
+          $("#alert-color-val").prop("class", "alert alert-success alert-dismissable");
+          $("#mensaje").text("Se agrego correctamente el reporte.");
+        } else {
+
+          if ($.trim($("#select-naturaleza").val()) == "-1") {
+            $("#select-naturaleza").addClass("formulario-warring");
+          }
+          if ($.trim($("#select-tipo").val()) == "-1") {
+            $("#select-tipo").addClass("formulario-warring");
+          }
+          if ($.trim($("#select-severidad").val()) == "-1") {
+            $("#select-severidad").addClass("formulario-warring");
+          }
+          if ($.trim($("#select-prioridad").val()) == "-1") {
+            $("#select-prioridad").addClass("formulario-warring");
+          }
+          if ($.trim($("#select-core").val()) == "-1") {
+            $("#select-core").addClass("formulario-warring");
+          }
+          if ($.trim($("#select-encargado").val()) == "-1") {
+            $("#select-encargado").addClass("formulario-warring");
+          }
+          if ($.trim($("#txt-descripcion").val()) == "") {
+            $("#txt-descripcion").addClass("formulario-warring");
+          }
+
+          $("#respuesta").text("Todos los campos delineados en rojo son obligatorios, por favor llenelos para poder enviar el mensaje");
+          $("#alert-color").removeAttr("class");
+          $("#alert-color").prop("class", "alert alert-danger alert-dismissable");
+          $("#alert-respuesta").show();
+        }
+      });
+
+      $("#modal-validacion-alert").hide();
+
+      $("#cerrar-alert-usuario").click(function () {
+        $("#modal-validacion-alert").hide();
+      });
+
+      $("#crear-usuario").blur(function () {
+        $.validarInputUsaurio($(this).attr("id"));
+      });
+      $("#crear-nombre").blur(function () {
+        $.validarInputUsaurio($(this).attr("id"));
+      });
+      $("#crear-email").blur(function () {
+        if ($.trim($(this).val()) != "") {
+          if (/^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i.test($.trim($("#crear-email").val()))) {
+            $("#modal-validacion-alert").hide();
+          } else {
+            $("#mensaje-alert").text("Correo electronico incorrecto.");
+            $("#alert-color-alret").removeAttr("class");
+            $("#alert-color-alret").prop("class", "alert alert-danger alert-dismissable");
+            $("#modal-validacion-alert").show();
+            $("#crear-email").val("");
+            $("#crear-email").addClass("formulario-warring");
+          }
+        }
+        $.validarInputUsaurio($(this).attr("id"));
+      });
+
+      $("#click-usuario").click(function () {
+        $("#modal-validacion-alert").hide();
+        $("#crear-usuario").removeClass("formulario-warring");
+        $("#crear-nombre").removeClass("formulario-warring");
+        $("#crear-email").removeClass("formulario-warring");
+      });
+
+      $("#btn-usuario-guardar").click(function () {
+        if ($.validarUsuario()) {
+          $("#crear-usuario").val("");
+          $("#crear-nombre").val("");
+          $("#crear-email").val("");
+          $("#crear-activo").prop("checked", false)
+          $("#crear-protegido").prop("checked", false)
+
+          $("#mensaje-alert").text("Se guardo el usuario correctamente.");
+          $("#alert-color-alret").removeAttr("class");
+          $("#alert-color-alret").prop("class", "alert alert-success alert-dismissable");
+          $("#modal-validacion-alert").show();
+        } else {
+
+          if ($.trim($("#crear-usuario").val()) == "") {
+            $("#crear-usuario").addClass("formulario-warring");
+          }
+          if ($.trim($("#crear-nombre").val()) == "") {
+            $("#crear-nombre").addClass("formulario-warring");
+          }
+          if ($.trim($("#crear-email").val()) == "") {
+            $("#crear-email").addClass("formulario-warring");
+          }
+
+          $("#mensaje-alert").text("Los campos bordeados en rojo son obligatorios.");
+          $("#alert-color-alret").removeAttr("class");
+          $("#alert-color-alret").prop("class", "alert alert-danger alert-dismissable");
+          $("#modal-validacion-alert").show();
+        }
+      });
+    });
+
+    $.validarUsuario = function () {
+      var flag = true;
+      if ($.trim($("#crear-usuario").val()) == "" || $.trim($("#crear-nombre").val()) == "" || $.trim($("#crear-email").val()) == "") {
+        flag = false;
+      }
+
+      return flag;
+    };
+
+    $.validarInputUsaurio = function (tag) {
+      if ($.trim($("#" + tag).val()) != "") {
+        $("#" + tag).removeClass("formulario-warring");
+      }
+      if ($.trim($("#crear-usuario").val()) != "" && $.trim($("#crear-nombre").val()) != "" && $.trim($("#crear-email").val()) != "") {
+        $("#modal-validacion-alert").hide();
+      }
+    };
+
+    $.validarFormulario = function () {
+      var flag = true;
+
+      if ($("#select-naturaleza").val() == "-1" || $("#select-tipo").val() == "-1" || $("#select-severidad").val() == "-1" || $("#select-prioridad").val() == "-1" || $("#select-core").val() == "-1" || $("#select-encargado").val() == "-1" || $("#txt-descripcion").val() == "") {
+        flag = false;
+      }
+
+      return flag;
+    };
+
+    $.validarInput = function (tag) {
+      if ($.trim($("#" + tag).val()) != "-1") {
+        $("#" + tag).removeClass("formulario-warring");
+      }
+
+      if ($("#select-naturaleza").val() != "-1" && $("#select-tipo").val() != "-1" && $("#select-severidad").val() != "-1" && $("#select-prioridad").val() != "-1" && $("#select-core").val() != "-1" && $("#select-encargado").val() != "-1" && $("#txt-descripcion").val() != "") {
+        $("#alert-respuesta").hide();
+      }
+    };
+  </script>
+</head>
+
+<body>
+
+  <nav class="navbar navbar-default navbar-custom">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+        <a class="navbar-brand" href="index.html?action=true">Inicio</a>
+      </div>
+
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li><a href="creacionecenarios.html">Creacion de escenario</a></li>
+          <li><a href="Asignaciondeproyecto.html">Asignacion de proyecto</a></li>
+          <li><a href="diseñodecasosdeprueba.html">Diseño Caso de Pruebas</a></li>
+          <li><a href="Ejecucioncasosdeprueba.html">Ejecucion de Casos Prueba</a></li>
+          <li class="active"><a href="reporteincidentes.html">Reporte de Incidentes</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+                        <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+                    </a>
+            <ul class="dropdown-menu dropdown-user">
+              <li><a href="#" data-toggle="modal" data-target="#perfil-usuario-modal"><i class="fa fa-user fa-fw"></i> Perfil de Usuario</a>
+              </li>
+              <li><a href="#" id="click-usuario" data-toggle="modal" data-target="#crear-usuario-modal"><i class="fa fa-plus-circle fa-fw"></i> Creacion de Usuarios</a>
+              </li>
+              <li class="divider"></li>
+              <li><a href="login.html"><i class="fa fa-sign-out fa-fw"></i> Salir</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <section id="reporte">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-10  col-lg-offset-1">
+          <ul class="breadcrumb">
+            <li><a href="#">Portafolio</a></li>
+            <li class="active">Reporte de Incidentes</li>
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-10  col-lg-offset-1">
+          <div class="row conten-from">
+            <div class="col-lg-6 col-md-6">
+              <div class="form-group">
+                <label class="control-label textcolor" for="focusedInput">Naturaleza</label>
+                <select class="form-control" id="select-naturaleza">
+                  <option value="-1">Seleccione...</option>
+                  <option>Ambiente</option>
+                  <option>Datos</option>
+                  <option>Documentación</option>
+                  <option>Funcionalidad</option>
+                  <option>General</option>
+                  <option>Instalación</option>
+                  <option>Seguridad</option>
+                  <option>Tecnicos</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+              <div class="form-group">
+                <label class="control-label textcolor" for="focusedInput">Tipo</label>
+                <select class="form-control" id="select-tipo">
+                  <option value="-1">Seleccione...</option>
+                  <option>Defecto</option>
+                  <option>Consideración</option>
+                  <option>Sugerencia</option>
+                  <option>Cambio/Mejora</option>
+                  <option>Fuera de Alcance</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+              <div class="form-group">
+                <label class="control-label textcolor" for="focusedInput">Severidad</label>
+                <select class="form-control" id="select-severidad">
+                  <option value="-1">Seleccione...</option>
+                  <option>Stopper</option>
+                  <option>Alta</option>
+                  <option>Media</option>
+                  <option>Baja</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+              <div class="form-group">
+                <label class="control-label textcolor" for="focusedInput">Prioridad</label>
+                <select class="form-control" id="select-prioridad">
+                  <option value="-1">Seleccione...</option>
+                  <option>Alta</option>
+                  <option>Media</option>
+                  <option>Baja</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+              <div class="form-group">
+                <label class="control-label textcolor" for="focusedInput">Core</label>
+                <select class="form-control" id="select-core">
+                  <option value="-1">Seleccione...</option>
+                  <option>Salud</option>
+                  <option>Sise 2G</option>
+                  <option>Sise 3g</option>
+                  <option>Capacitación</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+              <div class="form-group">
+                <label class="control-label textcolor" for="focusedInput">Encargado</label>
+                <select class="form-control" id="select-encargado">
+                  <option value="-1">Seleccione...</option>
+                  <option>Edwin Perdomo</option>
+                  <option>Pedro Cardenas</option>
+                  <option>Angelica Bernal</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-12 col-md-12">
+              <div class="form-group">
+                <label class="textcolor">Descripcion del Incidente</label>
+                <textarea id="txt-descripcion" class="form-control" rows="3" id="textArea"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-4 col-lg-offset-5" style="margin-top: 25px; margin-bottom: 25px">
+          <button id="btn-reprotar" type="button" class="btn btn-success"><i class="fa fa-fw fa-plus fa-lg"></i>Reportar</button>
+          <button type="button" class="btn btn-info" data-toggle="modal" data-target="#adjuntar-modal"><i class="fa fa-fw fa-paperclip fa-lg"></i>Adjuntar</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-10 col-lg-offset-1  col-md-10 col-md-offset-1 col-sm-12 col-sm-offset-0">
+          <div id="alert-respuesta">
+            <div id="alert-color" class="alert alert-danger alert-dismissable" role="alert">
+              <button id="btn-alert-close" type="button" class="close">×</button>
+              <strong>
+                        <p class="text-center">Alerta</p>
+                    </strong>
+              <p class="text-center" id="respuesta"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <footer id="footer-content">
+    <div class="footer-below">
+      <div class="container">
+        <div class="row">
+          <div id="footer-text" class="col-lg-8 col-sm-6 col-md-7 col-xs-10 text-left">
+            <p class="small">©2017 QManagement - Derechos Reservados</p>
+          </div>
+          <div class="col-lg-1 col-sm-1 col-md-1 col-xs-2 text-left col-lg-offset-3 col-md-offset-3 col-sm-offset-4">
+            <img class="img-responsive" src="img/logo2-transparent01.png" alt="" style="width:100%; height: 100%">
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <div id="modal-validacion" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div id="alert-color" class="alert alert-success alert-dismissable" role="alert">
+        <button type="button" class="close cursor-pointer" data-dismiss="modal">&times;</button>
+        <strong>
+                        <p class="text-center">Alerta</p>
+                    </strong>
+        <p class="text-center" id="mensaje"></p>
+      </div>
+    </div>
+  </div>
+
+  <div id="adjuntar-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Adjuntar</h4>
+        </div>
+        <div class="modal-body">
+          <input id="especificacion" type="file" class="file">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-fw fa-times-circle"></i>Cerrar</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="perfil-usuario-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Holiber Rodriguez</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="form-group">
+                <label>Usuarios</label>
+                <p class="form-control-static">holiber.rodriguez</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="form-group">
+                <label>Correo</label>
+                <p class="form-control-static">holiber.rodriguez@gmail.com</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="form-group">
+                <label>Nivel de Acceso</label>
+                <p class="form-control-static">Reportero</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="form-group">
+                <label>Activado</label>
+                <p class="form-control-static">Si</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="form-group">
+                <label>Protegido</label>
+                <p class="form-control-static">no</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-fw fa-times-circle"></i>Cerrar</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="crear-usuario-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Crear Nueva Cuenta</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="form-group">
+                <label class="control-label" for="focusedInput">Usuario</label>
+                <input id="crear-usuario" type="text" class="form-control" placeholder="" required="required">
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="form-group">
+                <label class="control-label" for="focusedInput">Nombre Real</label>
+                <input id="crear-nombre" type="text" class="form-control" placeholder="" required="required">
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="form-group">
+                <label class="control-label" for="focusedInput">Correo Electronico</label>
+                <input id="crear-email" type="text" class="form-control" placeholder="" required="required">
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="form-group">
+                <label class="control-label" for="focusedInput">Nivel de Acceso</label>
+                <select class="form-control" id="select">
+                  <option>Publico</option>
+                  <option>Privado</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <label class="control-label" for="focusedInput">Activado</label>
+              <div class="checkbox">
+                <label>
+                    <input type="checkbox" id="crear-activo" value="">Check si es activo
+                </label>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <label class="control-label" for="focusedInput">Protegido</label>
+              <div class="checkbox">
+                <label>
+                    <input type="checkbox" id="crear-protegido" value="">Check si es protegido
+                </label>
+              </div>
+            </div>
+            <div id="modal-validacion-alert" class="col-lg-12">
+              <div id="alert-color-alret" class="alert alert-success alert-dismissable" role="alert">
+                <button type="button" class="close cursor-pointer" id="cerrar-alert-usuario">&times;</button>
+                <strong>
+                        <p class="text-center">Alerta</p>
+                    </strong>
+                <p class="text-center" id="mensaje-alert"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-usuario-guardar" type="button" class="btn btn-primary"><i class="fa fa-fw fa-save"></i>Guardar</button>
+          <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-fw fa-times-circle"></i>Cerrar</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+</body>
+
+</html>
